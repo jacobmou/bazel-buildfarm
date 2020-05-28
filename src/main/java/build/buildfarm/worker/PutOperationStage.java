@@ -22,11 +22,8 @@ import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Durations;
 import com.google.protobuf.util.Timestamps;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class PutOperationStage extends PipelineStage.NullStage {
-  private static final Logger logger = Logger.getLogger(PutOperationStage.class.getName());
   private final InterruptingConsumer<Operation> onPut;
 
   private volatile AverageTimeCostOfLastPeriod[] averagesWithinDifferentPeriods;
@@ -150,18 +147,13 @@ public class PutOperationStage extends PipelineStage.NullStage {
     public Duration period;
     public int operationCount;
 
+    public OperationStageDurations() {
+      reset();
+    }
+
     void set(ExecutedActionMetadata metadata) {
       queuedToMatch =
           Timestamps.between(metadata.getQueuedTimestamp(), metadata.getWorkerStartTimestamp());
-      if (queuedToMatch == null) {
-        try {
-          throw new RuntimeException();
-        } catch (Exception e) {
-          logger.log(Level.SEVERE, e.getMessage());
-          logger.log(Level.SEVERE, metadata.getQueuedTimestamp().toString());
-          logger.log(Level.SEVERE, metadata.getWorkerStartTimestamp().toString());
-        }
-      }
       matchToInputFetchStart =
           Timestamps.between(
               metadata.getWorkerStartTimestamp(), metadata.getInputFetchStartTimestamp());
@@ -196,9 +188,6 @@ public class PutOperationStage extends PipelineStage.NullStage {
     }
 
     void addOperations(OperationStageDurations other) {
-      if (other == null) {
-        return;
-      }
       this.queuedToMatch =
           computeAverage(
               this.queuedToMatch,
