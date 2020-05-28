@@ -69,6 +69,7 @@ import build.buildfarm.worker.PutOperationStage;
 import build.buildfarm.worker.ReportResultStage;
 import build.buildfarm.worker.UploadManifest;
 import build.buildfarm.worker.WorkerContext;
+import build.buildfarm.worker.WorkerPeriodicProfile;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
@@ -687,13 +688,13 @@ public class Worker {
         };
 
     PipelineStage completeStage =
-        new PutOperationStage((operation) -> oq.deactivate(operation.getName()));
+        new PutOperationStage((operation) -> oq.deactivate(operation.getName()), WorkerPeriodicProfile.create());
     PipelineStage errorStage = completeStage; /* new ErrorStage(); */
     PipelineStage reportResultStage = new ReportResultStage(context, completeStage, errorStage);
     PipelineStage executeActionStage =
         new ExecuteActionStage(context, reportResultStage, errorStage);
     PipelineStage inputFetchStage =
-        new InputFetchStage(context, executeActionStage, new PutOperationStage(oq::requeue));
+        new InputFetchStage(context, executeActionStage, new PutOperationStage(oq::requeue, WorkerPeriodicProfile.create()));
     PipelineStage matchStage = new MatchStage(context, inputFetchStage, errorStage);
 
     Pipeline pipeline = new Pipeline();

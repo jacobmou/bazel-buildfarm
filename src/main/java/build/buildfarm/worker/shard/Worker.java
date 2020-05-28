@@ -53,6 +53,7 @@ import build.buildfarm.worker.Pipeline;
 import build.buildfarm.worker.PipelineStage;
 import build.buildfarm.worker.PutOperationStage;
 import build.buildfarm.worker.ReportResultStage;
+import build.buildfarm.worker.WorkerPeriodicProfile;
 import com.google.common.base.Strings;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
@@ -226,14 +227,15 @@ public class Worker extends LoggingMain {
             config.getLimitGlobalExecution(),
             config.getOnlyMulticoreTests());
 
+    WorkerPeriodicProfile workerProfile = WorkerPeriodicProfile.create();
     PipelineStage completeStage =
-        new PutOperationStage((operation) -> context.deactivate(operation.getName()));
+        new PutOperationStage((operation) -> context.deactivate(operation.getName()), workerProfile);
     PipelineStage errorStage = completeStage; /* new ErrorStage(); */
     PipelineStage reportResultStage = new ReportResultStage(context, completeStage, errorStage);
     PipelineStage executeActionStage =
         new ExecuteActionStage(context, reportResultStage, errorStage);
     PipelineStage inputFetchStage =
-        new InputFetchStage(context, executeActionStage, new PutOperationStage(context::requeue));
+        new InputFetchStage(context, executeActionStage, new PutOperationStage(context::requeue, workerProfile));
     PipelineStage matchStage = new MatchStage(context, inputFetchStage, errorStage);
 
     pipeline = new Pipeline();
@@ -251,7 +253,7 @@ public class Worker extends LoggingMain {
             .addService(new ByteStreamService(instances, /* writeDeadlineAfter=*/ 1, DAYS))
             .addService(
                 new WorkerProfileService(
-                    storage, inputFetchStage, executeActionStage, context, completeStage))
+                    storage, inputFetchStage, executeActionStage, context, workerProfile))
             .build();
 
     logger.log(INFO, String.format("%s initialized", identifier));

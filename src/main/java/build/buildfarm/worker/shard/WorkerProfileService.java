@@ -24,7 +24,8 @@ import build.buildfarm.worker.ExecuteActionStage;
 import build.buildfarm.worker.InputFetchStage;
 import build.buildfarm.worker.PipelineStage;
 import build.buildfarm.worker.PutOperationStage;
-import build.buildfarm.worker.PutOperationStage.OperationStageDurations;
+import build.buildfarm.worker.WorkerPeriodicProfile;
+import build.buildfarm.worker.WorkerPeriodicProfile.OperationTimeCostOnStages;
 import build.buildfarm.worker.WorkerContext;
 import io.grpc.stub.StreamObserver;
 import java.util.logging.Logger;
@@ -36,19 +37,19 @@ public class WorkerProfileService extends WorkerProfileGrpc.WorkerProfileImplBas
   private final InputFetchStage inputFetchStage;
   private final ExecuteActionStage executeActionStage;
   private final WorkerContext context;
-  private final PutOperationStage completeStage;
+  private final WorkerPeriodicProfile workerProfile;
 
   public WorkerProfileService(
       ContentAddressableStorage storage,
       PipelineStage inputFetchStage,
       PipelineStage executeActionStage,
       WorkerContext context,
-      PipelineStage completeStage) {
+      WorkerPeriodicProfile workerProfile) {
     this.storage = (CASFileCache) storage;
     this.inputFetchStage = (InputFetchStage) inputFetchStage;
     this.executeActionStage = (ExecuteActionStage) executeActionStage;
     this.context = context;
-    this.completeStage = (PutOperationStage) completeStage;
+    this.workerProfile = workerProfile;
   }
 
   @Override
@@ -75,7 +76,7 @@ public class WorkerProfileService extends WorkerProfileGrpc.WorkerProfileImplBas
         .setExecuteActionStageSlotsUsedOverConfigured(executeActionStageSlotUsage);
 
     // get aggregated time cost on each stages
-    OperationStageDurations[] durations = completeStage.getAverageTimeCostPerStage();
+    OperationTimeCostOnStages[] durations = workerProfile.getAverageTimeCostPerStage();
     for (int i = 0; i < durations.length; i++) {
       OperationTimesBetweenStages.Builder timesBuilder = OperationTimesBetweenStages.newBuilder();
       timesBuilder

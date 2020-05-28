@@ -637,12 +637,12 @@ class Cat {
     System.out.println(
         String.format(
             strStrFormat,
-            "Slots usage/configured in InputFetchStage",
+            "Slots used/configured in InputFetchStage",
             response.getInputFetchStageSlotsUsedOverConfigured()));
     System.out.println(
         String.format(
             strStrFormat,
-            "Slots usage/configured in ExecuteActionStage",
+            "Slots used/configured in ExecuteActionStage",
             response.getExecuteActionStageSlotsUsedOverConfigured()));
 
     List<OperationTimesBetweenStages> times = response.getTimesList();
