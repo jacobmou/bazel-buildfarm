@@ -238,10 +238,9 @@ public class PutOperationStage extends PipelineStage.NullStage {
       if (operationCount1 == 0 && operationCount2 == 0) {
         return Durations.fromNanos(0);
       }
-      long averageNanos =
-          (Durations.toNanos(d1) * operationCount1 + Durations.toNanos(d2) * operationCount2)
-              / (operationCount1 + operationCount2);
-      return Durations.fromNanos(averageNanos);
+      long sumNanos =
+          (Durations.toNanos(d1) * operationCount1 + Durations.toNanos(d2) * operationCount2);
+      return Durations.fromNanos(sumNanos);
     }
 
     private static float millisecondBetween(Timestamp from, Timestamp to) {
