@@ -236,7 +236,7 @@ public class PutOperationStage extends PipelineStage.NullStage {
     private static Duration computeAverage(
         Duration d1, int operationCount1, Duration d2, int operationCount2) {
       if (operationCount1 == 0 && operationCount2 == 0) {
-        return Durations.fromMillis(0);
+        return Durations.fromNanos(0);
       }
       long averageNanos =
           (Durations.toNanos(d1) * operationCount1 + Durations.toNanos(d2) * operationCount2)
