@@ -76,19 +76,19 @@ public class WorkerProfileService extends WorkerProfileGrpc.WorkerProfileImplBas
 
     // get aggregated time cost on each stages
     OperationStageDurations[] durations = completeStage.getAverageTimeCostPerStage();
-    for (int i = 0; i < durations.length; i++) {
+    for (OperationStageDurations duration : durations) {
       OperationTimesBetweenStages.Builder timesBuilder = OperationTimesBetweenStages.newBuilder();
       timesBuilder
-          .setQueuedToMatch(durations[i].queuedToMatch)
-          .setMatchToInputFetchStart(durations[i].matchToInputFetchStart)
-          .setInputFetchStartToComplete(durations[i].inputFetchStartToComplete)
-          .setInputFetchCompleteToExecutionStart(durations[i].inputFetchCompleteToExecutionStart)
-          .setExecutionStartToComplete(durations[i].executionStartToComplete)
+          .setQueuedToMatch(duration.queuedToMatch)
+          .setMatchToInputFetchStart(duration.matchToInputFetchStart)
+          .setInputFetchStartToComplete(duration.inputFetchStartToComplete)
+          .setInputFetchCompleteToExecutionStart(duration.inputFetchCompleteToExecutionStart)
+          .setExecutionStartToComplete(duration.executionStartToComplete)
           .setExecutionCompleteToOutputUploadStart(
-              durations[i].executionCompleteToOutputUploadStart)
-          .setOutputUploadStartToComplete(durations[i].outputUploadStartToComplete)
-          .setNumberOfOperation(durations[i].operationCount)
-          .setPeriod(durations[i].period);
+              duration.executionCompleteToOutputUploadStart)
+          .setOutputUploadStartToComplete(duration.outputUploadStartToComplete)
+          .setNumberOfOperation(duration.operationCount)
+          .setPeriod(duration.period);
       replyBuilder.addTimes(timesBuilder.build());
     }
 

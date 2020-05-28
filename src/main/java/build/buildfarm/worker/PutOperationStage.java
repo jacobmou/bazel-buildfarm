@@ -184,6 +184,9 @@ public class PutOperationStage extends PipelineStage.NullStage {
     }
 
     void addOperations(OperationStageDurations other) {
+      if (other == null) {
+        return;
+      }
       this.queuedToMatch =
           computeAverage(
               this.queuedToMatch,
