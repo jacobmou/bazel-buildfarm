@@ -238,10 +238,10 @@ public class PutOperationStage extends PipelineStage.NullStage {
       if (operationCount1 == 0 && operationCount2 == 0) {
         return Durations.fromMillis(0);
       }
-      long averageMicros =
-          (Durations.toMicros(d1) * operationCount1 + Durations.toMicros(d2) * operationCount2)
+      long averageNanos =
+          (Durations.toNanos(d1) * operationCount1 + Durations.toNanos(d2) * operationCount2)
               / (operationCount1 + operationCount2);
-      return Durations.fromMicros(averageMicros);
+      return Durations.fromNanos(averageNanos);
     }
 
     private static float millisecondBetween(Timestamp from, Timestamp to) {
@@ -249,7 +249,7 @@ public class PutOperationStage extends PipelineStage.NullStage {
       // 1 second = 1000 milliseconds
       // 1 millisecond = 1000,000 nanoseconds
       Duration d = Timestamps.between(from, to);
-      return d.getSeconds() * 1000.0f + d.getNanos() / (1000.0f * 1000.0f);
+      return Durations.toNanos(d) / (1000.0f * 1000.0f);
     }
   }
 }
